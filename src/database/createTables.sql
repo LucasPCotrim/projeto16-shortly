@@ -9,7 +9,7 @@ CREATE TABLE "users" (
 CREATE TABLE "sessions" (
   "id" SERIAL PRIMARY KEY,
   "token" TEXT NOT NULL UNIQUE,
-  "userId" INTEGER NOT NULL REFERENCES "users"("id"),
+  "userId" INTEGER NOT NULL UNIQUE REFERENCES "users"("id"),
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

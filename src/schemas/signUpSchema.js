@@ -7,7 +7,7 @@ const signUpSchema = joi.object({
     'any.required': `"name" is a required field`,
   }),
   email: joi.string().email().required().messages({
-    'email.base': `"email" should be of type 'email'`,
+    'string.base': `"email" should be of type 'string'`,
     'string.empty': `"email" cannot be an empty field`,
     'any.required': `"email" is a required field`,
   }),

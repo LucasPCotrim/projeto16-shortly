@@ -25,6 +25,16 @@ async function incrementUrlVisitCount(id) {
   );
 }
 
-const urlsRepository = { createShortUrl, getUrlById, getUrlByShortUrl, incrementUrlVisitCount };
+async function deleteUrlById(id) {
+  return db.query(`DELETE FROM "urls" WHERE id = $1`, [id]);
+}
+
+const urlsRepository = {
+  createShortUrl,
+  getUrlById,
+  getUrlByShortUrl,
+  incrementUrlVisitCount,
+  deleteUrlById,
+};
 
 export default urlsRepository;

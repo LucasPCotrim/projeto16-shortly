@@ -7,7 +7,9 @@ const NANO_ID_NUM_CHARS = 8;
 const ERROR_MESSAGES = {
   serverError: 'Server Error: Connection to database failed',
   urlNotFound: 'Error: URL not found!',
+  unauthorized: 'Error: User is not authorized!',
 };
+const SUCCESS_MESSAGES = { deletedURL: 'URL deleted succesfully!' };
 
 // shortenUrl
 // -----------
@@ -61,7 +63,7 @@ async function getUrl(req, res) {
 }
 
 // openUrl
-// -------
+// --------
 async function openUrl(req, res) {
   // Obtain shortUrl from route parameters
   const { shortUrl } = req.params;
@@ -87,4 +89,38 @@ async function openUrl(req, res) {
   }
 }
 
-export { shortenUrl, getUrl, openUrl };
+// deleteUrl
+// ----------
+async function deleteUrl(req, res) {
+  // Obtain user from res.locals
+  const { user } = res.locals;
+
+  // Obtain id from route parameters
+  const { id } = req.params;
+
+  try {
+    // Get URL from database
+    const checkUrl = await urlsRepository.getUrlById(id);
+    const url = checkUrl.rows[0];
+
+    // Check if URL exists
+    if (checkUrl.rowCount === 0) {
+      return res.status(404).send({ message: ERROR_MESSAGES.urlNotFound });
+    }
+
+    // Check if URL belongs to user
+    if (url.userId !== user.id) {
+      return res.status(401).send({ message: ERROR_MESSAGES.unauthorized });
+    }
+
+    // Delete URL
+    await urlsRepository.deleteUrlById(id);
+    res.status(204).send({ message: SUCCESS_MESSAGES.deletedURL });
+  } catch (error) {
+    // Server Error
+    console.log(error);
+    return res.status(500).send({ message: ERROR_MESSAGES.serverError });
+  }
+}
+
+export { shortenUrl, getUrl, openUrl, deleteUrl };

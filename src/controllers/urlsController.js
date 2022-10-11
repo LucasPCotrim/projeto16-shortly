@@ -6,8 +6,11 @@ const NANO_ID_NUM_CHARS = 8;
 // Error Messages
 const ERROR_MESSAGES = {
   serverError: 'Server Error: Connection to database failed',
+  urlNotFound: 'Error: URL not found!',
 };
 
+// shortenUrl
+// -----------
 async function shortenUrl(req, res) {
   // Obtain user from res.locals
   const { user } = res.locals;
@@ -31,4 +34,30 @@ async function shortenUrl(req, res) {
   }
 }
 
-export { shortenUrl };
+// getUrl
+// -------
+async function getUrl(req, res) {
+  // Obtain URL id from route parameters
+  const { id } = req.params;
+
+  try {
+    // Get Url from database
+    const checkUrl = await urlsRepository.getUrlById(id);
+    if (checkUrl.rowCount === 0) {
+      return res.status(404).send({ message: ERROR_MESSAGES.urlNotFound });
+    }
+    const url = checkUrl.rows[0];
+    delete url.visitCount;
+    delete url.userId;
+    delete url.createdAt;
+
+    // Return url to user
+    res.status(200).send(url);
+  } catch (error) {
+    // Server Error
+    console.log(error);
+    return res.status(500).send({ message: ERROR_MESSAGES.serverError });
+  }
+}
+
+export { shortenUrl, getUrl };

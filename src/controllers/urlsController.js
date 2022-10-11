@@ -60,4 +60,31 @@ async function getUrl(req, res) {
   }
 }
 
-export { shortenUrl, getUrl };
+// openUrl
+// -------
+async function openUrl(req, res) {
+  // Obtain shortUrl from route parameters
+  const { shortUrl } = req.params;
+
+  try {
+    // Get URL from database
+    const checkUrl = await urlsRepository.getUrlByShortUrl(shortUrl);
+    if (checkUrl.rowCount === 0) {
+      return res.status(404).send({ message: ERROR_MESSAGES.urlNotFound });
+    }
+    const url = checkUrl.rows[0];
+
+    // Increment URL visitCount
+    await urlsRepository.incrementUrlVisitCount(url.id);
+
+    // Redirect user to URL
+    const urlString = url.url;
+    return res.redirect(urlString);
+  } catch (error) {
+    // Server Error
+    console.log(error);
+    return res.status(500).send({ message: ERROR_MESSAGES.serverError });
+  }
+}
+
+export { shortenUrl, getUrl, openUrl };

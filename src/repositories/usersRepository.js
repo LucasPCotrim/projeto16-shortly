@@ -22,17 +22,17 @@ async function createUser(name, email, basePassword) {
 async function getUserInfoById(id) {
   return db.query(
     `SELECT
-      "users".id AS "userId",
-      "users".name AS "userName",
-      (SELECT SUM("urls"."visitCount") FROM "urls" WHERE "urls"."userId" = $1) AS "visitCount",
-      "urls".id AS "urlId",
-      json_build_object('id', "urls".id, 'shortUrl', urls."shortUrl", 'url', urls.url, 'visitCount', urls."visitCount") AS "urlInfo"
+      users.id AS "userId",
+      users.name AS "userName",
+      (SELECT SUM("urls"."visitCount") FROM urls WHERE urls."userId" = $1) AS "visitCount",
+      urls.id AS "urlId",
+      json_build_object('id', urls.id, 'shortUrl', urls."shortUrl", 'url', urls.url, 'visitCount', urls."visitCount") AS "urlInfo"
     FROM
-      "users"
-      JOIN "urls" ON "users".id = "urls"."userId"
-    WHERE "users".id = $1
-    GROUP BY "users".id, "urls".id
-    ORDER BY "urls".id;
+      users
+      JOIN urls ON users.id = urls."userId"
+    WHERE users.id = $1
+    GROUP BY users.id, urls.id
+    ORDER BY urls.id;
   `,
     [id]
   );
@@ -41,13 +41,13 @@ async function getUserInfoById(id) {
 async function getUsersRanking() {
   return db.query(
     `SELECT
-      usr.id, usr.name,
-      COUNT(u.id) AS "linksCount",
-      COALESCE(SUM(u."visitCount"),0) AS "visitCount"
+      users.id, users.name,
+      COUNT(urls.id) AS "linksCount",
+      COALESCE(SUM(urls."visitCount"),0) AS "visitCount"
     FROM
-      users usr
-      LEFT JOIN urls u ON usr.id = u."userId"
-    GROUP BY usr.id
+      users
+      LEFT JOIN urls ON users.id = urls."userId"
+    GROUP BY users.id
     ORDER BY
       "visitCount" DESC,
       "linksCount" DESC

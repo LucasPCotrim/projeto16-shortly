@@ -38,6 +38,30 @@ async function getUserInfoById(id) {
   );
 }
 
-const usersRepository = { getUserById, getUserByEmail, createUser, getUserInfoById };
+async function getUsersRanking() {
+  return db.query(
+    `SELECT
+      usr.id, usr.name,
+      COUNT(u.id) AS "linksCount",
+      COALESCE(SUM(u."visitCount"),0) AS "visitCount"
+    FROM
+      users usr
+      LEFT JOIN urls u ON usr.id = u."userId"
+    GROUP BY usr.id
+    ORDER BY
+      "visitCount" DESC,
+      "linksCount" DESC
+    LIMIT 10
+  `
+  );
+}
+
+const usersRepository = {
+  getUserById,
+  getUserByEmail,
+  createUser,
+  getUserInfoById,
+  getUsersRanking,
+};
 
 export default usersRepository;

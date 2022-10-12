@@ -7,6 +7,8 @@ const ERROR_MESSAGES = {
   unauthorized: 'Error: User is not authorized!',
 };
 
+// getUserInfo
+// ------------
 async function getUserInfo(req, res) {
   // Obtain user from res.locals
   const { user } = res.locals;
@@ -31,4 +33,20 @@ async function getUserInfo(req, res) {
   }
 }
 
-export { getUserInfo };
+// getRanking
+// -----------
+async function getRanking(req, res) {
+  try {
+    // get users ranking
+    const checkRanking = await usersRepository.getUsersRanking();
+
+    // Send users ranking
+    res.status(200).send(checkRanking.rows);
+  } catch (error) {
+    // Server Error
+    console.log(error);
+    return res.status(500).send({ message: ERROR_MESSAGES.serverError });
+  }
+}
+
+export { getUserInfo, getRanking };

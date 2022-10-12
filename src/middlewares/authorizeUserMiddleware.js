@@ -4,8 +4,8 @@ import usersRepository from '../repositories/usersRepository.js';
 // Error Messages
 const ERROR_MESSAGES = {
   serverError: 'Server Error: Connection to database failed',
-  noToken: 'Error: Token not found!',
-  sessionNotFound: 'Error: Session not found!',
+  noToken: 'Error: Invalid token!',
+  sessionNotFound: 'Error: Session expired!',
   userNotFound: 'Error: User not found!',
 };
 
@@ -25,7 +25,7 @@ export default async function validateUserToken(req, res, next) {
     // Check if session's user is in the database
     const { rows: users } = await usersRepository.getUserById(session.userId);
     const user = users[0];
-    if (!user) return res.status(401).send({ message: ERROR_MESSAGES.userNotFound });
+    if (!user) return res.status(404).send({ message: ERROR_MESSAGES.userNotFound });
 
     // Store user in res.locals
     res.locals.user = user;

@@ -19,6 +19,25 @@ async function createUser(name, email, basePassword) {
   );
 }
 
-const usersRepository = { getUserById, getUserByEmail, createUser };
+async function getUserInfoById(id) {
+  return db.query(
+    `SELECT
+      "users".id AS "userId",
+      "users".name AS "userName",
+      (SELECT SUM("urls"."visitCount") FROM "urls" WHERE "urls"."userId" = $1) AS "visitCount",
+      "urls".id AS "urlId",
+      json_build_object('id', "urls".id, 'shortUrl', urls."shortUrl", 'url', urls.url, 'visitCount', urls."visitCount") AS "urlInfo"
+    FROM
+      "users"
+      JOIN "urls" ON "users".id = "urls"."userId"
+    WHERE "users".id = $1
+    GROUP BY "users".id, "urls".id
+    ORDER BY "urls".id;
+  `,
+    [id]
+  );
+}
+
+const usersRepository = { getUserById, getUserByEmail, createUser, getUserInfoById };
 
 export default usersRepository;

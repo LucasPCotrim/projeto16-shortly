@@ -11,5 +11,7 @@ if (process.env.MODE === 'PROD') {
     rejectUnauthorized: false,
   };
 }
+console.log('configDatabase');
+console.log(configDatabase);
 const db = new Pool(configDatabase);
 export default db;
